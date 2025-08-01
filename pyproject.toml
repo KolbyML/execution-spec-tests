@@ -112,9 +112,6 @@ compare_fixtures = "cli.compare_fixtures:main"
 where = ["src"]
 exclude = ["*tests*"]
 
-[tool.pyright]
-exclude = ["tests/static/**"]
-
 [tool.setuptools.package-data]
 ethereum_test_forks = ["forks/contracts/*.bin"]
 "pytest_plugins.execute" = ["eth_config/networks.yml"]

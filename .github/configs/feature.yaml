@@ -5,9 +5,6 @@ stable:
 develop:
   evm-type: develop
   fill-params: --until=Osaka
-static:
-  evm-type: static
-  fill-params: --until=Osaka --fill-static-tests ./tests/static
 benchmark_test:
   evm-type: benchmark
   fill-params: --from=Cancun --until=Prague --gas-benchmark-values 1,10,30,45,60,90,120 -m benchmark --generate-all-formats ./tests
