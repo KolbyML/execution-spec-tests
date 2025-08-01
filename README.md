@@ -1,3 +1,60 @@
+# Arbitrum Execution Spec Tests
+
+This is a fork of https://github.com/ethereum/execution-spec-tests
+
+The Goal of forking Ethereum's Execution Spec tests was to verify that Arbitrum is working as expected well reusing existing tests and infrastructure.
+
+## Removed EIP's
+### Shanghai
+- EIP-3651: Warm COINBASE
+- EIP-4895: Beacon chain push withdrawals as operations
+
+### Not supported in ArbOS 20, EIP's from Cancun
+- EIP-4788: Beacon block root in the EVM
+- EIP-7516: BLOBBASEFEE instruction  
+##### Arbitrum can post/retrieve EIP-4844 from L1, but doesn't support the mechanics on Arbitrum. Only the precompile tests appear to pass
+- EIP-4844: Shard Blob Transactions
+
+### Not supported in ArbOS 40, EIP's from Prague
+- EIP-2537: Precompile for BLS12-381 curve operations
+- EIP-6110: Supply validator deposits on chain
+- EIP-7002: Execution layer triggerable withdrawals
+- EIP-7251: Increase the MAX_EFFECTIVE_BALANCE
+- EIP-7623: Increase calldata cost
+- EIP-7685: General purpose execution layer requests
+
+I believe these EIP's weren't implemented/enabled in Arbitrum Nitro, so I removed them from the tests.
+
+## Instructions on how to run
+
+1. Install and run https://github.com/OffchainLabs/nitro-devnode in terminal 1:
+
+```bash
+git clone https://github.com/OffchainLabs/nitro-devnode.git
+cd nitro-devnode
+./run-dev-node.sh
+```
+
+2. Install the execution spec tests dependencies in terminal 2:
+
+Follow the [Prerequisites](#prerequisites) and [Installation](#installation) sections below to install the required dependencies.
+
+3. Run the execution spec tests in terminal 2 against Arbitrum Nitro:
+
+```bash
+uv run execute remote --fork=Prague --rpc-endpoint=http://127.0.0.1:8547 --rpc-seed-key 0xb6b15c8cb491557369f3c7d2c287b053eb229daa9c22138887752191c9520659 --rpc-chain-id 412346 ./tests/ --verbose
+```
+
+## Expected Output
+
+[Nitro test results](nitro_test_results.txt) contain the results of running the execution spec tests against Arbitrum Nitro.
+
+The summary is as follows:
+
+```
+========== 299 failed, 1726 passed, 33 skipped in 3500.29s (0:58:20) ===========
+```
+
 # Execution Spec Tests
 
 [![latest version](https://img.shields.io/github/v/release/ethereum/execution-spec-tests)](https://github.com/ethereum/execution-spec-tests/releases/latest)

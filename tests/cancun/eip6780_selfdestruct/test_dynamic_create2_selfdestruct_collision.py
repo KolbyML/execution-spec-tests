@@ -31,7 +31,17 @@ REFERENCE_SPEC_VERSION = "1b6a0e94cc47e859b9866e570391cf37dc55059a"
 @pytest.mark.valid_from("Paris")
 @pytest.mark.parametrize(
     "create2_dest_already_in_state",
-    (True, False),
+    (
+        pytest.param(
+            True,
+            marks=pytest.mark.execute(
+                pytest.mark.skip(
+                    reason="Tests are not allowed to set pre-alloc items in execute mode"
+                ),
+            ),
+        ),
+        False,
+    ),
 )
 @pytest.mark.parametrize(
     "call_create2_contract_in_between,call_create2_contract_at_the_end",
@@ -201,7 +211,7 @@ def test_dynamic_create2_selfdestruct_collision(
         chain_id=0x0,
         nonce=0,
         to=address_to,
-        gas_price=10,
+        gas_price=1000000000,
         protected=False,
         data=initcode,
         gas_limit=5000000,
@@ -215,7 +225,17 @@ def test_dynamic_create2_selfdestruct_collision(
 @pytest.mark.valid_from("Paris")
 @pytest.mark.parametrize(
     "create2_dest_already_in_state",
-    (True, False),
+    (
+        pytest.param(
+            True,
+            marks=pytest.mark.execute(
+                pytest.mark.skip(
+                    reason="Tests are not allowed to set pre-alloc items in execute mode"
+                ),
+            ),
+        ),
+        False,
+    ),
 )
 @pytest.mark.parametrize(
     "call_create2_contract_at_the_end",
@@ -427,7 +447,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
                         chain_id=0x0,
                         nonce=next(nonce),
                         to=address_to,
-                        gas_price=10,
+                        gas_price=1000000000,
                         protected=False,
                         data=initcode,
                         gas_limit=5000000,
@@ -439,7 +459,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
                         chain_id=0x0,
                         nonce=next(nonce),
                         to=address_to_second,
-                        gas_price=10,
+                        gas_price=1000000000,
                         protected=False,
                         data=initcode,
                         gas_limit=5000000,
@@ -661,7 +681,7 @@ def test_dynamic_create2_selfdestruct_collision_multi_tx(
                         chain_id=0x0,
                         nonce=next(nonce),
                         to=address_to,
-                        gas_price=10,
+                        gas_price=1000000000,
                         protected=False,
                         data=initcode,
                         gas_limit=5000000,
@@ -673,7 +693,7 @@ def test_dynamic_create2_selfdestruct_collision_multi_tx(
                         chain_id=0x0,
                         nonce=next(nonce),
                         to=address_to,
-                        gas_price=10,
+                        gas_price=1000000000,
                         protected=False,
                         data=initcode,
                         gas_limit=5000000,

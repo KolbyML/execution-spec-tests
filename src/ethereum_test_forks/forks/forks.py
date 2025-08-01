@@ -1343,29 +1343,6 @@ class Prague(Cancun):
     }
 
     @classmethod
-    def precompiles(cls, block_number: int = 0, timestamp: int = 0) -> List[Address]:
-        """
-        At Prague, pre-compile for BLS operations are added.
-
-        BLS12_G1ADD = 0x0B
-        BLS12_G1MSM = 0x0C
-        BLS12_G2ADD = 0x0D
-        BLS12_G2MSM = 0x0E
-        BLS12_PAIRING_CHECK = 0x0F
-        BLS12_MAP_FP_TO_G1 = 0x10
-        BLS12_MAP_FP2_TO_G2 = 0x11
-        """
-        return [
-            Address(11, label="BLS12_G1ADD"),
-            Address(12, label="BLS12_G1MSM"),
-            Address(13, label="BLS12_G2ADD"),
-            Address(14, label="BLS12_G2MSM"),
-            Address(15, label="BLS12_PAIRING_CHECK"),
-            Address(16, label="BLS12_MAP_FP_TO_G1"),
-            Address(17, label="BLS12_MAP_FP2_TO_G2"),
-        ] + super(Prague, cls).precompiles(block_number, timestamp)
-
-    @classmethod
     def tx_types(cls, block_number: int = 0, timestamp: int = 0) -> List[int]:
         """At Prague, set-code type transactions are introduced."""
         return [4] + super(Prague, cls).tx_types(block_number, timestamp)
@@ -1388,18 +1365,6 @@ class Prague(Cancun):
     def system_contracts(cls, block_number: int = 0, timestamp: int = 0) -> List[Address]:
         """Prague introduces the system contracts for EIP-6110, EIP-7002, EIP-7251 and EIP-2935."""
         return [
-            Address(
-                0x00000000219AB540356CBB839CBE05303D7705FA,
-                label="DEPOSIT_CONTRACT_ADDRESS",
-            ),
-            Address(
-                0x00000961EF480EB55E80D19AD83579A64C007002,
-                label="WITHDRAWAL_REQUEST_PREDEPLOY_ADDRESS",
-            ),
-            Address(
-                0x0000BBDDC7CE488642FB579F8B00F3A590007251,
-                label="CONSOLIDATION_REQUEST_PREDEPLOY_ADDRESS",
-            ),
             Address(
                 0x0000F90827F1C53A10CB7A02335B175320002935,
                 label="HISTORY_STORAGE_ADDRESS",
@@ -1431,19 +1396,6 @@ class Prague(Cancun):
             if floor:
                 return tokens * gas_costs.G_TX_DATA_FLOOR_TOKEN_COST
             return tokens * gas_costs.G_TX_DATA_STANDARD_TOKEN_COST
-
-        return fn
-
-    @classmethod
-    def transaction_data_floor_cost_calculator(
-        cls, block_number: int = 0, timestamp: int = 0
-    ) -> TransactionDataFloorCostCalculator:
-        """On Prague, due to EIP-7623, the transaction data floor cost is introduced."""
-        calldata_gas_calculator = cls.calldata_gas_calculator(block_number, timestamp)
-        gas_costs = cls.gas_costs(block_number, timestamp)
-
-        def fn(*, data: BytesConvertible) -> int:
-            return calldata_gas_calculator(data=data, floor=True) + gas_costs.G_TRANSACTION
 
         return fn
 
@@ -1555,7 +1507,7 @@ class Prague(Cancun):
             )
 
         # EIP-2935: Add the history storage contract
-        with open(CURRENT_FOLDER / "contracts" / "history_contract.bin", mode="rb") as f:
+        with open(CURRENT_FOLDER / "contracts" / "history_contract_arbitrum.bin", mode="rb") as f:
             new_allocation.update(
                 {
                     0x0000F90827F1C53A10CB7A02335B175320002935: {
