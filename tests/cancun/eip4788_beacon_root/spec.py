@@ -21,7 +21,7 @@ ref_spec_4788 = ReferenceSpec("EIPS/eip-4788.md", "e7608fe8ac8a60934ca874f5aab7d
 class Spec:
     """
     Parameters from the EIP-4788 specifications as defined at
-    https://eips.ethereum.org/EIPS/eip-4788#specification.
+    https://eips.ethereu.org/EIPS/eip-4788#specification.
     """
 
     BEACON_ROOTS_ADDRESS = 0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02

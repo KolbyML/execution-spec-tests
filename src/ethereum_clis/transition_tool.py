@@ -374,6 +374,7 @@ class TransitionTool(EthereumCLI, FixtureVerifier):
         if result.returncode != 0:
             raise Exception("failed to evaluate: " + result.stderr.decode())
 
+        print("TransitionTool: t8n tool output:", result.stdout)
         output: TransitionToolOutput = TransitionToolOutput.model_validate_json(result.stdout)
 
         if debug_output_path:

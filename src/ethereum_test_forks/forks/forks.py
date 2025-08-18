@@ -195,9 +195,9 @@ class Frontier(BaseFork, solc_name="homestead"):
             return_cost_deducted_prior_execution: bool = False,
         ) -> int:
             assert access_list is None, f"Access list is not supported in {cls.name()}"
-            assert (
-                authorization_list_or_count is None
-            ), f"Authorizations are not supported in {cls.name()}"
+            assert authorization_list_or_count is None, (
+                f"Authorizations are not supported in {cls.name()}"
+            )
             intrinsic_cost: int = gas_costs.G_TRANSACTION
 
             if contract_creation:
@@ -1061,7 +1061,8 @@ class Prague(Cancun):
             Address(0x00000000219AB540356CBB839CBE05303D7705FA),
             Address(0x0C15F14308530B7CDB8460094BBB9CC28B9AAAAA),
             Address(0x00431F263CE400F4455C2DCF564E53007CA4BBBB),
-            Address(0x0F792BE4B0C0CB4DAE440EF133E90C0ECD48CCCC),
+            # Arbitrum doesn't support EIP-2935, so we don't include it here.
+            # Address(0x0F792BE4B0C0CB4DAE440EF133E90C0ECD48CCCC),
         ] + super(Prague, cls).system_contracts(block_number, timestamp)
 
     @classmethod
@@ -1212,8 +1213,9 @@ class Prague(Cancun):
                 }
             )
 
+        # Arbitrum uses a different history storage contract
         # Add the history storage contract
-        with open(CURRENT_FOLDER / "contracts" / "history_contract.bin", mode="rb") as f:
+        with open(CURRENT_FOLDER / "contracts" / "history_contract_arbitrum.bin", mode="rb") as f:
             new_allocation.update(
                 {
                     0x0F792BE4B0C0CB4DAE440EF133E90C0ECD48CCCC: {

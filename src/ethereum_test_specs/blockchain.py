@@ -38,9 +38,10 @@ from ethereum_test_fixtures.blockchain import (
     FixtureWithdrawal,
     InvalidFixtureBlock,
 )
-from ethereum_test_forks import Fork
+from ethereum_test_forks import Cancun, Fork, London, Prague, Shanghai
 from ethereum_test_types import Alloc, Environment, Removable, Requests, Transaction, Withdrawal
 
+from .arbos import enableArbOS, initialize_arbos_state
 from .base import BaseTest, verify_result
 from .debugging import print_traces
 from .helpers import is_slow_test, verify_transactions
@@ -168,9 +169,9 @@ class Header(CamelModel):
                 assert baseline_value is not Header.REMOVE_FIELD, "invalid header"
                 value = getattr(target, field_name)
                 if baseline_value is Header.EMPTY_FIELD:
-                    assert (
-                        value is None
-                    ), f"invalid header field {field_name}, got {value}, want None"
+                    assert value is None, (
+                        f"invalid header field {field_name}, got {value}, want None"
+                    )
                     continue
                 assert value == baseline_value, (
                     f"invalid header field ({field_name}) value, "
@@ -298,18 +299,34 @@ class BlockchainTest(BaseTest):
         self,
         fork: Fork,
     ) -> Tuple[Alloc, FixtureBlock]:
+        print("hi airplane", fork)
         """Create a genesis block from the blockchain test definition."""
         env = self.genesis_environment.set_fork_requirements(fork)
-        assert (
-            env.withdrawals is None or len(env.withdrawals) == 0
-        ), "withdrawals must be empty at genesis"
-        assert env.parent_beacon_block_root is None or env.parent_beacon_block_root == Hash(
-            0
-        ), "parent_beacon_block_root must be empty at genesis"
-
+        assert env.withdrawals is None or len(env.withdrawals) == 0, (
+            "withdrawals must be empty at genesis"
+        )
+        assert env.parent_beacon_block_root is None or env.parent_beacon_block_root == Hash(0), (
+            "parent_beacon_block_root must be empty at genesis"
+        )
         pre_alloc = Alloc.merge(
             Alloc.model_validate(fork.pre_allocation_blockchain()),
             self.pre,
+        )
+
+        storage = {}
+        initialize_arbos_state(storage, fork)
+        print("hi", storage)
+        pre_alloc = Alloc.merge(
+            Alloc.model_validate(
+                {
+                    0xA4B05FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF: {
+                        "nonce": 1,
+                        "balance": 0,
+                        "storage": storage,
+                    }
+                }
+            ),
+            pre_alloc,
         )
         if empty_accounts := pre_alloc.empty_accounts():
             raise Exception(f"Empty accounts in pre state: {empty_accounts}")
@@ -345,6 +362,7 @@ class BlockchainTest(BaseTest):
             ),
             fork=fork,
         )
+        genesis = enableArbOS(fork, genesis)
 
         return (
             pre_alloc,
@@ -449,9 +467,9 @@ class BlockchainTest(BaseTest):
 
         requests_list: List[Bytes] | None = None
         if fork.header_requests_required(header.number, header.timestamp):
-            assert (
-                transition_tool_output.result.requests is not None
-            ), "Requests are required for this block"
+            assert transition_tool_output.result.requests is not None, (
+                "Requests are required for this block"
+            )
             requests = Requests(requests_lists=list(transition_tool_output.result.requests))
 
             if Hash(requests) != header.requests_hash:
@@ -473,6 +491,7 @@ class BlockchainTest(BaseTest):
             header = block.rlp_modifier.apply(header)
             header.fork = fork  # Deleted during `apply` because `exclude=True`
 
+        header = enableArbOS(fork, header)
         return (
             header,
             txs,
@@ -621,9 +640,9 @@ class BlockchainTest(BaseTest):
                     env = apply_new_parent(env, header)
                     head_hash = header.block_hash
         fcu_version = fork.engine_forkchoice_updated_version(header.number, header.timestamp)
-        assert (
-            fcu_version is not None
-        ), "A hive fixture was requested but no forkchoice update is defined. The framework should"
+        assert fcu_version is not None, (
+            "A hive fixture was requested but no forkchoice update is defined. The framework should"
+        )
         " never try to execute this test case."
 
         self.verify_post_state(t8n, alloc)
@@ -631,9 +650,9 @@ class BlockchainTest(BaseTest):
         sync_payload: Optional[FixtureEngineNewPayload] = None
         if self.verify_sync:
             # Test is marked for syncing verification.
-            assert (
-                genesis.header.block_hash != head_hash
-            ), "Invalid payload tests negative test via sync is not supported yet."
+            assert genesis.header.block_hash != head_hash, (
+                "Invalid payload tests negative test via sync is not supported yet."
+            )
 
             # Most clients require the header to start the sync process, so we create an empty
             # block on top of the last block of the test to send it as new payload and trigger the
